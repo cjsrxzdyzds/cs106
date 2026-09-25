@@ -1,81 +1,175 @@
-> 📚 **结构化教程**：本仓库已整理为《现代 C++ 与多线程编程》学习文档，见 [docs/README.md](docs/README.md)；并发实验代码见 [labs/](labs/)。
+# day-one · 系统编程、算法与形式化推理
 
-# C++ 自学总结
+一个用于长期自学的代码与笔记仓库：以 **C/C++ 多线程编程和算法实现** 为主线，把知识落实为可运行、可测试、可解释的程序，同时用于面试准备；后续加入 **OCaml 函数式编程**与 **Lean 4 形式化证明**，逐步连接到量化研究与工程相关的学习兴趣。
 
-## 学习路径
+学习的基本单位是一个具体问题：先写出正确实现，解释不变量和复杂度，再验证并发行为与性能，最后尝试用另一种语言或证明方式重新理解它。
 
-Duke Introdutory C Programming -> Stanford CS106L(standard C++ programming) -> NTU programming notes -> AUT AP1400-2
+## 当前从哪里开始
 
-## 课程介绍
+| 内容 | 当前状态 | 入口 |
+|---|---|---|
+| 工具链、构建与调试 | 已有文档 | [工具链](docs/00-toolchain.md) |
+| 现代 C++ 基础 | 已有 8 章 | [课程总览](docs/README.md) |
+| C++ 多线程编程 | 已有 6 章，含练习与参考思路 | [多线程课程](docs/concurrency/README.md) |
+| 并发实验 | 已有 lab0–lab6，共 7 个 | [实验目录](labs/README.md) |
+| AP1400-2 作业复盘 | 已有代码审查文档；原作业通过子模块获取 | [作业审查](docs/homework/code-review.md) |
+| C 与 POSIX 线程 | 规划中，尚无独立课程 | 见下方路线 |
+| 系统化算法实现与面试题 | 已有 BST、矩阵与队列等实验素材，尚未形成独立题库 | 见下方路线 |
+| OCaml | 规划中，尚无代码与课程 | 见下方路线 |
+| Lean 4 | 规划中，尚无代码与课程 | 见下方路线 |
 
-### Introductory C Programming Specialization
+**当前优先完成 C++ 并发主线，并穿插算法实现。** OCaml 与 Lean 先保留明确的学习目标，等主线跑通后逐步加入。现有目录不代表所有长期目标已经覆盖。
 
-- 学习时间：一周
+## 四条相互连接的学习线
 
-- 课程内容：这门课是Duke在Coursera上开设的C语言课程，内容大致为C小程+C大程（去除古色古香的图形库作业）+ gcc、Makefile，valgrind，gdb等关于C语言应该掌握但三本并未提及的重要内容
+### 1. C/C++：从内存与所有权到多线程
 
-![image-20230301193142070](images/image-20230301193142070.png)
+已有 C++ 课程覆盖类型、容器、模板、类、移动语义、RAII、智能指针与多态。并发部分按以下顺序推进：
 
-这门课虽然不免费，但是可以旁听，就是没有课程的完成证书（该证书可以放领英上，不过不知道有没有用🤡）；但是可以申请助学金，申请助学金后课程就是免费的，完成课程后能拿个证书😇申请助学金的审批流程要14天，所以想申请的话要提早。
+1. [线程与内存模型](docs/concurrency/01-threads-and-memory-model.md)：生命周期、数据竞争、happens-before。
+2. [互斥与等待](docs/concurrency/02-mutexes-condition-variables-semaphores.md)：不变量、死锁、条件变量、信号量、关闭协议。
+3. [原子与内存序](docs/concurrency/03-atomics-and-memory-order.md)：发布、CAS、引用计数、伪共享。
+4. [任务与线程池](docs/concurrency/04-tasks-futures-thread-pools.md)：future、异常、任务分配、排空与并行收益。
+5. [并发数据结构](docs/concurrency/05-concurrent-data-structures.md)：线性化、锁粒度、节点回收、OCC。
+6. [测试与调试](docs/concurrency/06-testing-and-debugging.md)：Sanitizer、受控交错、模型检查与结课项目。
 
-课程分为4个部分，前面讲的是C的基础语法，之后开始讲gcc等关于编译的内容以及gdb，valgrind等debug的内容
+后续补充 C 的对应实现：用 pthread 创建和回收线程，用 mutex/condition variable 实现有界队列，练习手动清理与错误返回；再与 C++ RAII 版本对照。C11 原子单独建立语言层面的推理，不把 C++ 的对象生命周期规则直接套过去。
 
-总的来说，课程质量还是非常不错的，很适合来巩固C语言，并且系统地去拓展相关知识。Coursera的课程相较于一般的大学公开课更加interactive，每一个小节都有相应的exercise来复习，但是他的exercise并不能跳着做，所以笔者就不做了🤡
+每完成一个并发组件，都要回答：谁拥有数据？哪些访问冲突？同步关系在哪里？失败时如何恢复？等待者如何退出？
 
+### 2. 算法：独立实现、验证正确性、分析成本
 
+算法练习贯穿并发学习，不必等并发课程全部结束才开始。先做串行版本，再判断哪些部分适合并行。
 
-### CS106L
+| 阶段 | 计划实现 | 必须讲清楚的内容 |
+|---|---|---|
+| 基础 | 二分、排序、双指针、前缀和、链表 | 边界、不变量、时间与空间复杂度 |
+| 数据结构 | 堆、哈希表、BST、并查集、LRU | 接口语义、所有权、退化情况 |
+| 图与搜索 | BFS、DFS、拓扑排序、最短路 | 状态表示、访问标记、算法前提 |
+| 优化与决策 | 贪心、动态规划、回溯、Top-K | 正确性理由、状态转移、剪枝条件 |
+| 与系统结合 | 矩阵计算、批量归约、生产者—消费者 | 局部性、分解方式、同步开销 |
 
-- 学习时间： 刷课一周，复习4天
-- 课程内容：CS106L是Stanford开设的C++语言课程，主要介绍了C++的现代特性，在基础语法上并不花时间，所以需要有一定的语言基础。CS106L是CS106B/CS106X的companion class，CS106B是以C++为基础的计算机导论课，讲了一些数据结构（？，笔者没上过，有误请指正😇），只讲一些的C++，所以CS106L可以被视为一门正儿八经的语言课，而106b/x更多关注于语言以外的内容。
-- 适合学生：没有其他的语言基础的话学起来会相对更吃力一点，推荐有其他类C语言基础的同学上。Java和C++还是挺像的，class，~~operator~~，inheritance等部分和Java基本一致，只不过在语法上有所出入；Python的话和C like的语言就差异比较大了😥学习C++之前还是建议学一学C，一些比较low level的部分基本与C一致
-- Instructor介绍： CS106L的讲师并非教授，而是来自湾湾的Stanford本校学生Avery Wang，是个巨佬。好像还修了CS和数学的双学位orz
-![image-20230301200405897](images/image-20230301200405897.png)
+每份实现至少包含：问题规格、算法说明、独立实现、边界测试、复杂度分析。适合时与标准库或简单串行实现交叉验证。性能优化必须保留正确性校验，不能只展示一个更短的运行时间。
 
-现在在Jump Trading，笔者所知的大佬云集地（~~Jump打钱！~~）此外，Avery Wang的高中是Taipei American school，和IOI第一的[William Lin](https://www.youtube.com/@tmwilliamlin168)是校友（~~可以follow一下，还和笔者同岁🤡~~） 私货结束🤡    回到教学水平，Avery Wang讲得还是非常非常不错的，虽然是湾湾人，但他的英语还是非常native的，听起来很不戳；此外，这门课的另一位Instructor是个女生，也非常nice，但是名字一时半会找不到了🤡（~~对不起~~）小姐姐的笑声很有感染力🥰🥰
+现有的 [矩阵实验](labs/lab1_matmul/matmul.cpp)、[BST 实验](labs/lab3_bst/concurrent_bst.cpp) 和 [队列实验](labs/lab6_queue/) 可以作为起点；它们不等同于完整的算法课程。
 
-- 课程感受： CS106L是直接录屏课堂，笔者也是第一次体验世界一流大学的线下课堂。课堂有非常非常非常多的Instructor和student之间的交流，基本上课堂里三分之一以上的时间都是在解答学生的疑问，而且提的问题质量也很高，讲解的也很好。课堂的氛围是真的轻松自在，提问极其活跃，从不点名，上课随意进出，甚至还能看到翘脚的学生😇![image-20230207224635142](images/image-20230207224635142.png)
+### 3. OCaml：用类型与函数式方式重新实现问题
 
-​	“great question！”，“awesome！”，每一个问题提出后必然得到积极的回应。CS106L给了鼠鼠极大的顶校震撼，我想这样的课根本不需要用点名来束缚学生留在课堂上，毕竟和三本的降智课程已然是云泥之别，顺便我一定要问候一下点名制度的创建者：始作俑者，其有后乎？
+计划顺序：表达式与递归 → 代数数据类型与模式匹配 → 高阶函数与不可变数据 → 模块与接口 → 测试与工程组织，再进入并发主题。
 
-- 一丢丢的课程可提升部分：虽然内容很棒，但相比于笔者上过的UC Berkeley的网课，106L有很多的slides并未开放，视频本身有一点点缺陷，比如有些课只有video（课堂录像）或只有screencast（电脑录屏），笔者个人更喜欢screencast，同时有些视频并未剪辑，需手动跳过。但是，这仅仅是笔者的愚见，Stanford愿意将它宝贵的课程资源放到网上，愿意把Stanford学生需要花20万刀才能上的课给普罗大众，我们就应抱以极大的感激之情。图为106L的评论区![./image-20230301210634527](images/image-20230301210634527.png)
-- HW部分： 据写过的老哥们说HW质量可能不是很高，笔者的HW1配环境配了半天最后还是配不出来，所以做了一半就跑路了🤡 仅说我做的HW1部分，要实现一个WikiRacer，但第一部分其实只写了十几行代码，用几个STL函数；事实上，WikiRacer这个HW有个更好的升级版，是UC Berkeley的CS61B中的[HW 4: 8 Puzzle | CS 61B Spring 2018](https://sp18.datastructur.es/materials/hw/hw4/hw4)，实现的是一个Puzzle Solver，是我印象比较深的一个HW，把graph的算法和实际问题结合在了一起，同时这个solver是generic的，即可以解决任何问题，本质上和106L的HW1是一样的。
-- 课程学习部分：CS106L的网上资源是比较乱的，有完整一学期的video只有[Stanford CS 106L Fall 2019 Lectures - YouTube](https://www.youtube.com/playlist?list=PLCgD3ws8aVdolCexlz8f3U-RROA0s5jWA)，而其他的课程网站如果23winter，18 winter是没有video的，而且笔者在网上找不到19fall的slides，所以就先用18fall的slides顶替了，但是18fall和19fall授课的顺序和内容有所变化，所以最终还是自己取舍。[CS106L Standard C++ Programming | Learn CS](https://learncs.me/stanford/cs106l)这个网站大致收录了能用的资源，尽量少在找其他学期的资源上耗时间。
+第一批练习复用已经熟悉的问题：列表与树遍历、持久化集合、表达式求值器、事件状态机。对同一道题比较 C++ 的可变状态和所有权设计，与 OCaml 的不可变数据和类型建模，不要求机械地逐行翻译。
 
+入门从 [OCaml 官方学习文档](https://ocaml.org/docs) 开始；之后结合 [Real World OCaml](https://dev.realworldocaml.org/) 学习模块、错误处理与实际程序组织。当前仓库尚未配置 OCaml 工具链。
 
+### 4. Lean 4：把算法性质写成可检查的证明
 
-### NTU Programming Notes
+这里的 Lean 指 **Lean 4 编程语言与定理证明器**。计划从函数、归纳类型、命题与证明开始，再练习归纳法、递归函数性质与小型算法正确性。
 
-- website： [yet another insignificant Programming Notes (ntu.edu.sg)](https://www3.ntu.edu.sg/home/ehchua/programming/index.html)   好吧这个网站的名字不是那么直观🤡![image-20230302163517378](images/image-20230302163517378.png)
+先证明范围明确的性质，例如列表反转两次得到原列表、插入保持集合成员关系、排序保持长度与元素排列。随后再讨论有序性和更完整的算法规格。
 
-- 学习时间：C++部分  一周
-- 内容介绍：笔者之前没有接触过坡县大学的学习材料，找到这个programming notes是偶然间发现的，可能是因为有时候把节点开到坡县了🤡这个Notes是NTU的教授[Chua Hock Chuan | Academic Profile | DR-NTU | Research | NTU Singapore](https://dr.ntu.edu.sg/cris/rp/rp00469) 但是，这个notes非常好，不仅仅限于C++的内容，从了解Windows开始到OOP，Java，C++，Web乃至于环境配置，IDE介绍等等皆应有尽有，~~薄纱菜鸟教程~~，内容广，并且非常优质，笔者花了大概一周的时间来看掉C/C++ Programming的部分，对基础语法做了非常详尽的讲解(涉及很少的现代特性，notes写的时间也在十年前，但基础语法部分个人认为也牵扯不上现代特性），如果想要对C++基础语法的练习，可以去[HackerRank](https://www.hackerrank.com/)找C++的题做掉，笔者做了一半，感觉还不错😇
+学习入口使用 [Lean 官方学习路线](https://lean-lang.org/learn/) 中的 *Functional Programming in Lean* 与 *Theorem Proving in Lean*。完成的证明练习不保留 `sorry`，并明确前提。证明 Lean 中的数学模型，不自动等于证明对应 C++ 实现的整数溢出、内存管理或并发行为正确；二者的对应关系需要另外建立。
 
+## 面试准备如何融入日常学习
 
+每个主题同时保留实现记录与口头解释。一个可复用的练习流程是：
 
-### AUT AP1400-2
+1. **明确题意**：输入、输出、规模、边界和错误处理约定。
+2. **独立实现**：先不看已有答案，写出一个正确的基线。
+3. **解释正确性**：说明循环不变量、递归假设或并发操作的生效点。
+4. **测试与分析**：覆盖边界，计算复杂度；有性能主张时给出测量。
+5. **复盘与复述**：记录错误原因，再用几分钟讲清实现和取舍。
 
-- 该课程没有课程主页，只有GitHub上的作业repo：[aut courseworks (github.com)](https://github.com/orgs/courseworks/repositories?page=1)，但已经足够
-- 对于106L作业质量不佳的情况，笔者选择去做AUT的AP1400-2，但是这个coursework有一定的门槛，需要一点Docker的知识，看懂Dockerfile即可，但是不会也没事，直接手动build也行，可以加个AP1400-2的交流群，群主很热心，群文件里有环境配置的文档（感谢群主大大🥰🥰) 
-- 笔者就不贴自己的Github了，~~以免掉码，极少数认识笔者的8友别揭鼠鼠马甲~~😇。
-- 作业质量： 说实话AP1400-2的6个HW是我目前为止做的最舒服的HW，没有很长的spec，~~我做过AP1400-2，那里的coding很纯粹。~~  实现的东西很简洁也常见，但触及到的C++特性却基本上包含了笔者在106L以及Programming notes学到的内容，非常好的上手体验。每个HW需要花的平均时间大致为两到三天（笔者尽量多去写新特性，所以花费的时间可能比大部分人多）
-- HW具体内容：
-  - 1.HW1相对比较无聊，实现的是一个algebra的库，用到的基本上都是线代的知识，虽然笔者做完了HW1，但还是只建议做HW1的一半，做一半大概就能熟悉了大致的实现过程，剩下的基本就是数学的加加减减
-  - 2.HW2实现的是一个中心化的加密货币交易过程，里面一些概念相对比较难理解，但是基本上实现的东西还是不难的，最后一个mine的部分spec描述的不清楚，交流群的老哥也没去实现
-  - 3.HW3实现的是一个BST，可能是笔者学DS过的时间比较久，写的比较磕磕绊绊，当然也可能是因为C++的memory allocation比较麻烦，笔者之前用Java实现的时候比较顺畅。虽然如此，但HW3是笔者收获最多的一个HW，个人认为最值得一做
-  - 4.HW4实现的是uniquePtr和sharedPtr，接触的是template class,比较简单，UniquePtr和SharedPtr有非常多相似之处
-  - 5.HW5接触的是继承和多态，应该是6个HW里最简单的，几个小时就可以做完
-  - 6.HW6是用STL来解决四个问题，第一个问题接触到的functor很不错
+| 面试主题 | 可以从仓库中练习的问题 |
+|---|---|
+| C++ 所有权 | unique_ptr 与 shared_ptr 的差别；移动后对象；异常路径清理 |
+| 多线程基础 | 为什么 join 不能修复两个 worker 之间的数据竞争？ |
+| 同步设计 | 为什么条件变量需要谓词？如何关闭满队列？ |
+| 原子操作 | relaxed 何时足够？CAS 失败后 expected 为什么变化？ |
+| 数据结构 | BST 如何维护不变量？并发删除为什么涉及回收？ |
+| 系统设计 | 线程池如何排空、传递异常、避免池内等待死锁？ |
+| 性能分析 | 为什么先改善缓存局部性，再增加线程？ |
 
+后续若按具体岗位准备，再补充相应的操作系统、网络、概率统计或研究类题目。量化方向作为应用兴趣，可以用于选择事件处理、数值计算等项目题材；当前学习路线不以某种语言的行业热度作为完成标准。
 
+## 建议推进顺序
 
-### 结语
+| 阶段 | 主线 | 可检查的产出 |
+|---|---|---|
+| A · 跑通与补基础 | 工具链、C++ 所有权与容器 | 独立构建，解释一处内存或生命周期错误 |
+| B · 并发入门 | 第 01–02 章，lab0、lab6 | 独立实现可关闭队列，并解释等待与退出 |
+| C · 内存模型与任务 | 第 03–04 章，lab4、lab5、lab1 | 解释引用计数，完成线程池与串并行对照 |
+| D · 数据结构与验证 | 第 05–06 章，lab3、lab2 | 实验复盘与航班流水线结课项目 |
+| E · C 对照与算法补全 | pthread 队列、串行算法专题 | C/C++ 资源管理对照，算法实现与面试复述 |
+| F · 函数式与证明 | OCaml、Lean 4 | 同一算法的另一种实现，以及一个明确性质的证明 |
 
-C++语言：笔者对C++的理解不深，但总的来说C++的memory allocation比较麻烦，特性也很多，当然这可能也是很多人觉得C++难写的原因。
+算法小题与面试复述可以从 A 阶段开始穿插。按阶段验收推进，比给所有语言同时开一套课程更容易形成完整成果。
 
-课程部分： 有的时候会很感慨，好像随便Google找个课程都能薄纱三本大部分课程，很希望在不久的将来，能不出国门，乃至不出校门也可以上到对得起QS50的课程
+## 运行现有实验
 
-2024.2.3 UPDATE:All HW source codes are open
+需要 CMake、支持 C++20 的编译器及标准库；标准库必须提供 `std::jthread`、`std::stop_token` 和 `std::counting_semaphore`。这些实验不依赖 GoogleTest，也不要求先下载原作业子模块。
 
+从仓库根目录执行：
 
+```bash
+cmake -S labs -B labs/build -DCMAKE_BUILD_TYPE=Release
+cmake --build labs/build -j 4
+ctest --test-dir labs/build --output-on-failure --timeout 120
+```
 
+数据竞争检查使用独立构建：
+
+```bash
+cmake -S labs -B labs/build-tsan -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAB_SANITIZER=thread
+cmake --build labs/build-tsan -j 4
+ctest --test-dir labs/build-tsan --output-on-failure --timeout 180
+```
+
+故意含数据竞争的例子需要单独运行，预期收到诊断：
+
+```bash
+./labs/build-tsan/lab0_race racy
+```
+
+ASan/UBSan、挂起排查与工具限制见 [测试与调试](docs/concurrency/06-testing-and-debugging.md)。教学实验的输入、异常与生命周期边界见对应课件，不把测试通过理解为所有场景均已覆盖。
+
+本次验证记录（2026-09-25）：macOS arm64、Apple Clang 21，Release 构建下 **7/7 测试通过**。lab5 异常测试存在一处忽略 `future::get()` 返回值的编译警告；本次记录不宣称重新完成了 Sanitizer 验证。
+
+## 仓库结构
+
+```text
+docs/
+  00-toolchain.md       构建、调试、Sanitizer
+  cpp/                 8 章现代 C++ 基础
+  concurrency/         6 章多线程课程、练习与结课规格
+  homework/            原作业代码审查
+labs/
+  lab0_race/           数据竞争、原子计数与伪共享
+  lab1_matmul/         矩阵算法、局部性与并行分解
+  lab2_mining/         账本、确定性搜索与 OCC
+  lab3_bst/            粗锁、读写锁与锁耦合 BST
+  lab4_smart_ptr/      所有权与原子引用计数
+  lab5_thread_pool/    任务、future、线程池
+  lab6_queue/          有界队列与生产者—消费者
+HW1/ … HW6/            原 AP1400-2 作业子模块
+```
+
+目前不创建算法、面试、OCaml、Lean 的空目录；当第一个有说明、实现和测试的学习单元准备好后，再加入相应模块。
+
+需要阅读原作业源代码时执行：
+
+```bash
+git submodule update --init --recursive
+```
+
+作业依赖和构建方式与独立 labs 不同，参见 [工具链文档](docs/00-toolchain.md) 和 [原环境配置 PDF](AP1400-2作业环境配置.pdf)。本地未初始化子模块时，相应目录可能为空。
+
+## 学习记录的完成标准
+
+一个单元完成后，应留下别人可以复现、自己过一段时间仍看得懂的材料：
+
+- 问题与前提：解决什么，支持哪些输入和操作。
+- 实现与理由：关键不变量、所有权、同步方式或证明目标。
+- 验证与结果：怎么运行，哪些测试通过，哪些工具未能执行。
+- 取舍与复盘：复杂度、已知限制、踩过的坑，以及下一步值得改进的地方。
+
+仓库起源于 Duke C、Stanford CS106L、NTU Programming Notes 与 AUT AP1400-2 的学习实践，保留作业与实验作为已有基础；后续围绕上述学习目标持续整理。

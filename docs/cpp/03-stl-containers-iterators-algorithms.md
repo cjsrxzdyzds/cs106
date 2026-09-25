@@ -58,7 +58,7 @@ HW2 使用 `std::map<std::shared_ptr<Client>, double>`：键是**指针**，排�
 
 - `get_client(id)` 只能线性扫描，O(n)；
 - 遍历顺序取决于内存分配器，每次运行可能不同（不确定性）；
-- 原实现遍历时写 `for (pair<shared_ptr<Client>, double> p : clients)`：循环变量按值声明（而且与元素类型 `pair<const shared_ptr<Client>, double>` 并不相同），**每次迭代都拷贝构造一个 pair**，其中拷贝 `shared_ptr` 意味着一次原子自增和一次原子自减（见 [concurrency/03](../concurrency/README.md)）。
+- 原实现遍历时写 `for (pair<shared_ptr<Client>, double> p : clients)`：循环变量按值声明（而且与元素类型 `pair<const shared_ptr<Client>, double>` 并不相同），**每次迭代都拷贝构造一个 pair**，其中拷贝 `shared_ptr` 意味着一次原子自增和一次原子自减（见 [concurrency/03](../concurrency/03-atomics-and-memory-order.md)）。
   写成 `const auto&` 就没有拷贝；若写成 `const pair<shared_ptr<Client>, double>&`，类型不匹配仍会**悄悄绑定到一个临时对象**上，照样拷贝——这是 `auto` 比手写类型更安全的一个具体例子。
 
 更合理的数据结构是 `std::map<std::string, Account>` 或 `std::unordered_map`，以 id 为键。
@@ -96,7 +96,7 @@ for (auto it = v.begin(); it != v.end(); ++it)
     if (*it == 0) v.push_back(1);   // ⚠️ push_back 可能扩容，it 失效 → UB
 ```
 
-在单线程中这是“修改正在遍历的容器”；在多线程中，这正是“一个线程遍历、另一个线程插入”的数据竞争——STL 容器**不提供任何内部同步**（见 [concurrency/05](../concurrency/README.md)）。
+在单线程中这是“修改正在遍历的容器”；在多线程中，这正是“一个线程遍历、另一个线程插入”的数据竞争——STL 容器**不提供任何内部同步**（见 [concurrency/05](../concurrency/05-concurrent-data-structures.md)）。
 
 ## 5. 算法
 

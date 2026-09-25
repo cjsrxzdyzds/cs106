@@ -5,7 +5,7 @@
 > 并参考 **CMU 15-213 / 15-418 / 15-445** 的相关内容，把每个作业扩展成多线程实验。
 
 本文档面向已经会 C（或其他类 C 语言）、想系统掌握现代 C++（C++17/20）并入门并发编程的读者。
-原仓库根目录的 [README](../README.md) 是作者的学习随笔；本目录把这些内容整理成一套结构化教程。
+仓库的整体自学目标与后续路线见 [项目首页](../README.md)；本目录是已经落地的 C++ 与并发课程。
 
 ---
 
@@ -25,14 +25,15 @@ docs/
 │   ├── 07-raii-and-smart-pointers.md
 │   └── 08-inheritance-and-polymorphism.md
 ├── concurrency/
-│   └── README.md                 第二部分：多线程 —— 目前只有大纲与实测结论，正文待补
+│   ├── README.md                 第二部分：多线程目录与实验路线
+│   └── 01–06                     线程、同步、原子、线程池、数据结构、测试
 └── homework/
     └── code-review.md            第三部分：HW1–HW6 代码审查汇总（ASan / 单元测试 / 最小复现实证）
 
-labs/                             可运行的并发实验（C++20，无第三方依赖，已通过 TSan / ASan 验证）
+labs/                             可运行的并发实验（C++20，无第三方依赖；验证环境见下文）
 ```
 
-完成状态：C++ 部分 8 章已完成；多线程部分的**实验代码已完成**，理论正文（6 章）尚待补写，
+完成状态：C++ 部分 8 章、多线程部分 6 章正文与 7 个实验均已提供，包含练习、参考思路与结课验收，
 见 [concurrency/README.md](concurrency/README.md)；逐个作业的精讲目前合并为一份
 [代码审查汇总](homework/code-review.md)，每一条结论都标注了依据（Sanitizer 实测、测试失败、链接错误、最小复现或代码审阅）。
 
@@ -50,12 +51,12 @@ labs/                             可运行的并发实验（C++20，无第三�
 | 特殊成员函数、移动语义 | Special Member Functions, Move Semantics | HW3、HW5 | — | [cpp/06](cpp/06-special-members-and-move-semantics.md) | — |
 | RAII 与智能指针 | RAII & Smart Pointers | HW4 | 15-213 动态内存分配（第 9 章） | [cpp/07](cpp/07-raii-and-smart-pointers.md) | [lab4](../labs/lab4_smart_ptr/) |
 | 继承与多态 | Inheritance | HW5 | — | [cpp/08](cpp/08-inheritance-and-polymorphism.md) | [lab5](../labs/lab5_thread_pool/) |
-| 线程与内存模型 | Multithreading（部分学期开设） | — | 15-213 第 12 章；15-418 Memory Consistency | [concurrency/01](concurrency/README.md) | [lab0](../labs/lab0_race/race.cpp) |
-| 互斥量、条件变量、信号量 | 同上 | HW2 扩展 | 15-213 第 12 章（sbuf、读者-写者） | [concurrency/02](concurrency/README.md) | [lab6](../labs/lab6_queue/) |
-| 原子操作与内存序 | — | HW4 扩展 | 15-418 Cache Coherence, Synchronization, Lock-free | [concurrency/03](concurrency/README.md) | [lab0](../labs/lab0_race/race.cpp)、[lab4](../labs/lab4_smart_ptr/) |
-| 任务、future、线程池、并行分解 | — | HW1、HW5 扩展 | 15-418 Parallel Programming Basics, Work Distribution | [concurrency/04](concurrency/README.md) | [lab1](../labs/lab1_matmul/matmul.cpp)、[lab5](../labs/lab5_thread_pool/) |
-| 并发数据结构 | — | HW3、HW2 扩展 | 15-445 Index Concurrency Control, OCC；15-418 Fine-grained Synchronization | [concurrency/05](concurrency/README.md) | [lab2](../labs/lab2_mining/mining.cpp)、[lab3](../labs/lab3_bst/concurrent_bst.cpp) |
-| 并发程序的测试与调试 | — | 全部 | 15-418；程序分析相关论文 | [concurrency/06](concurrency/README.md) | 全部 |
+| 线程与内存模型 | Multithreading（部分学期开设） | — | 15-213 第 12 章；15-418 Memory Consistency | [concurrency/01](concurrency/01-threads-and-memory-model.md) | [lab0](../labs/lab0_race/race.cpp) |
+| 互斥量、条件变量、信号量 | 同上 | HW2 扩展 | 15-213 第 12 章（sbuf、读者-写者） | [concurrency/02](concurrency/02-mutexes-condition-variables-semaphores.md) | [lab6](../labs/lab6_queue/) |
+| 原子操作与内存序 | — | HW4 扩展 | 15-418 Cache Coherence, Synchronization, Lock-free | [concurrency/03](concurrency/03-atomics-and-memory-order.md) | [lab0](../labs/lab0_race/race.cpp)、[lab4](../labs/lab4_smart_ptr/) |
+| 任务、future、线程池、并行分解 | — | HW1、HW5 扩展 | 15-418 Parallel Programming Basics, Work Distribution | [concurrency/04](concurrency/04-tasks-futures-thread-pools.md) | [lab1](../labs/lab1_matmul/matmul.cpp)、[lab5](../labs/lab5_thread_pool/) |
+| 并发数据结构 | — | HW3、HW2 扩展 | 15-445 Index Concurrency Control, OCC；15-418 Fine-grained Synchronization | [concurrency/05](concurrency/05-concurrent-data-structures.md) | [lab2](../labs/lab2_mining/mining.cpp)、[lab3](../labs/lab3_bst/concurrent_bst.cpp) |
+| 并发程序的测试与调试 | — | 全部 | 15-418；程序分析相关论文 | [concurrency/06](concurrency/06-testing-and-debugging.md) | 全部 |
 
 > 关于 CS106L：该课程每学期的讲次安排不同（例如 Fall 2019 由 Avery Wang 主讲、有完整录像，近年的版本调整了顺序并加入了更多 C++20 内容），
 > 所以表中按**主题**而不是讲次编号对应。并发部分 CS106L 只在部分学期用一讲简单介绍，本文档的第二部分主要参考 CMU 课程和
@@ -102,8 +103,11 @@ ctest --test-dir build-tsan --output-on-failure
 cmake -S . -B build-asan -DLAB_SANITIZER=address && cmake --build build-asan -j
 ```
 
-需要支持 C++20 的编译器（GCC ≥ 11 或 Clang ≥ 14；用到了 `std::jthread`、`std::counting_semaphore`、`std::stop_token`）。
-所有实验在 GCC 13（Release / TSan / ASan+UBSan）与 Clang 18（Release）下编译通过、无警告，测试全部通过。
+需要支持 C++20 的编译器及标准库（用到了 `std::jthread`、`std::counting_semaphore`、`std::stop_token`）。
+仓库历史记录：GCC 13 的 Release / TSan / ASan+UBSan 与 Clang 18 Release 测试通过。
+2026-09-25 本机复核：macOS arm64、Apple Clang 21，Release 下 7/7 测试通过；
+lab5 异常测试有一处忽略 `future::get()` 返回值的编译警告。历史 Sanitizer 结论不等同于本次复测，
+完整操作与验证边界见 [测试与调试](concurrency/06-testing-and-debugging.md)。
 
 ---
 

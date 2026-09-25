@@ -101,7 +101,7 @@ HW4 原实现用一个 `static std::map<T*, int>` 记录所有指针的计数：
 2. **`shared_ptr` 对象本身不是**：同一个 `shared_ptr` 变量被一个线程赋值、另一个线程读取，是数据竞争。需要加锁，或使用 C++20 的 `std::atomic<std::shared_ptr<T>>`；
 3. **被指向的对象更不是**：`shared_ptr` 只管理生命周期，`T` 的成员访问需要 `T` 自己同步。
 
-[lab4](../../labs/lab4_smart_ptr/smart_ptr.h) 实现了一个带原子计数的 `SharedPtr`，并用 ThreadSanitizer 验证了多线程并发拷贝/销毁时对象恰好析构一次。引用计数为什么用 `relaxed` 自增、`acq_rel` 自减，是理解内存序的经典案例，详见 [concurrency/03](../concurrency/README.md)。
+[lab4](../../labs/lab4_smart_ptr/smart_ptr.h) 实现了一个带原子计数的 `SharedPtr`，并用 ThreadSanitizer 验证了多线程并发拷贝/销毁时对象恰好析构一次。引用计数为什么用 `relaxed` 自增、`acq_rel` 自减，是理解内存序的经典案例，详见 [concurrency/03](../concurrency/03-atomics-and-memory-order.md)。
 
 ⚠️ 性能提示：`shared_ptr` 的每次拷贝都是一次原子读-改-写，多核高频拷贝同一个控制块会导致缓存行在核间来回迁移。函数参数只是“使用”对象时，传 `const shared_ptr<T>&` 或直接传 `T&`。
 

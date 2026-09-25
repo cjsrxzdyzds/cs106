@@ -75,7 +75,7 @@ cmake --build build-asan -j && ./build-asan/main
 > 🔧 编译器视角：ASan 用 **shadow memory** 把每 8 字节应用内存映射为 1 字节元数据，在每次 load/store 前插入检查；
 > TSan 为每个内存位置维护少量 shadow cell，记录最近访问的线程与 **向量时钟（vector clock）**，
 > 用 happens-before 关系判断两次访问是否并发——这就是动态数据竞争检测中的 FastTrack 类算法（详见
-> [concurrency/06](concurrency/README.md)）。
+> [concurrency/06](concurrency/06-testing-and-debugging.md)）。
 > ASan 与 TSan 使用不同的 shadow 布局，不能同时启用。
 
 ## 4. 调试器与其他工具
