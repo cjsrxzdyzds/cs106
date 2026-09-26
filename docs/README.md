@@ -9,6 +9,8 @@
 
 ---
 
+本页保留 C++ 与并发课程的完整路线。新增学习线：[算法课程（6 章）](algorithms/README.md) · [CUDA 算子课程（5 章）](cuda/README.md)。二者可独立构建实验，当前验证状态见各自目录。
+
 ## 1. 文档结构
 
 ```
@@ -27,6 +29,8 @@ docs/
 ├── concurrency/
 │   ├── README.md                 第二部分：多线程目录与实验路线
 │   └── 01–06                     线程、同步、原子、线程池、数据结构、测试
+├── algorithms/                  类 LeetCode 算法课（6 章）
+├── cuda/                        CUDA 算子课（5 章，GPU 待验证）
 └── homework/
     └── code-review.md            第三部分：HW1–HW6 代码审查汇总（ASan / 单元测试 / 最小复现实证）
 
